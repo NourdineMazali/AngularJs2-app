@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/platform-browser-dynamic'], function(exports_1, context_1) {
+System.register(['@angular/core', '@angular/common', '@angular/platform-browser-dynamic'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,12 +10,15 @@ System.register(['@angular/core', '@angular/platform-browser-dynamic'], function
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, platform_browser_dynamic_1;
-    var Product, ProductImage, PriceDisplay, ProductDepartment, productRow, ProductsList, ShopApp;
+    var core_1, common_1, platform_browser_dynamic_1;
+    var Product, ProductImage, PriceDisplay, ProductDepartment, productRow, ProductsList, DemoFormSkuBuilder, ShopApp;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
+            },
+            function (common_1_1) {
+                common_1 = common_1_1;
             },
             function (platform_browser_dynamic_1_1) {
                 platform_browser_dynamic_1 = platform_browser_dynamic_1_1;
@@ -113,6 +116,31 @@ System.register(['@angular/core', '@angular/platform-browser-dynamic'], function
                 ], ProductsList);
                 return ProductsList;
             }());
+            //Form
+            DemoFormSkuBuilder = (function () {
+                function DemoFormSkuBuilder(fb) {
+                    this.myForm = fb.group({
+                        'sku': ['', common_1.Validators.required],
+                        'price': ['']
+                    });
+                    this.sku = this.myForm.controls['sku'];
+                    this.sku.valueChanges.subscribe(function (value) { console.log(value); });
+                    this.myForm.find('price').valueChanges.subscribe(function (value) { console.log(value); });
+                }
+                DemoFormSkuBuilder.prototype.onSubmit = function (value) {
+                    console.log('you submitted value: ', value);
+                };
+                DemoFormSkuBuilder = __decorate([
+                    core_1.Component({
+                        selector: 'demo-form-sku-builder',
+                        directives: [common_1.CORE_DIRECTIVES, common_1.FORM_DIRECTIVES],
+                        template: "\n    <div class=\"ui raised segment\">\n    <h2 class=\"ui header\">Demo Form: Sku with Builder</h2>\n    <form [ngFormModel]=\"myForm\" (ngSubmit)=\"onSubmit(myForm.value)\" class=\"ui form\">\n      <div class=\"field\"[class.error]=\"!sku.valid && sku.touched\">\n        <label for=\"skuInput\" >SKU</label>\n        <input type=\"text\" id=\"skuInput\" placeholder=\"SKU\"\n          [ngFormControl]=\"myForm.controls['sku']\">\n          <div *ngIf=\"!sku.valid\" class=\"ui error message\">SKU is invalid</div>\n          <div *ngIf=\"sku.hasError('required')\" class=\"ui error message\">SKU is required</div>\n      </div>\n      <div class=\"field\">\n        <label for=\"priceInput\">Price</label>\n        <input type=\"text\" id=\"priceInput\" placeholder=\"Price\"\n          [ngFormControl]=\"myForm.find('price')\"  [(ngModel)]=\"price\">\n      </div>\n      \n      <button type=\"submit\" class=\"ui button\">Submit</button>     \n    </form>\n    </div>\n  "
+                    }), 
+                    __metadata('design:paramtypes', [common_1.FormBuilder])
+                ], DemoFormSkuBuilder);
+                return DemoFormSkuBuilder;
+            }());
+            exports_1("DemoFormSkuBuilder", DemoFormSkuBuilder);
             // ShopApp Decorator
             ShopApp = (function () {
                 function ShopApp() {
@@ -128,8 +156,8 @@ System.register(['@angular/core', '@angular/platform-browser-dynamic'], function
                 ShopApp = __decorate([
                     core_1.Component({
                         selector: "shop-app",
-                        directives: [ProductsList],
-                        template: "<div class=\"shop-app\">\n       <products-list\n         [productList]=\"products\"\n         (onProductSelected)=\"productWasSelected($event)\" >\n       </products-list>\n   </div>"
+                        directives: [ProductsList, DemoFormSkuBuilder],
+                        template: "<div class=\"shop-app\">\n       <products-list\n         [productList]=\"products\"\n         (onProductSelected)=\"productWasSelected($event)\" >\n       </products-list>\n       <demo-form-sku-builder></demo-form-sku-builder>\n   </div>"
                     }), 
                     __metadata('design:paramtypes', [])
                 ], ShopApp);

@@ -2,7 +2,14 @@ import {
   Component,
   EventEmitter
 } from '@angular/core';
-
+ import {
+  FORM_DIRECTIVES,
+  CORE_DIRECTIVES
+  FormBuilder,
+  ControlGroup,
+  Validators,
+  AbstractControl
+  } from '@angular/common';
 import {bootstrap} from '@angular/platform-browser-dynamic';
 
 // Product class
@@ -114,17 +121,65 @@ class PriceDisplay{
      }
 
  }
+ 
+ //Form
+ @Component({
+  selector: 'demo-form-sku-builder',
+  directives: [CORE_DIRECTIVES, FORM_DIRECTIVES],
+  template: `
+    <div class="ui raised segment">
+    <h2 class="ui header">Demo Form: Sku with Builder</h2>
+    <form [ngFormModel]="myForm" (ngSubmit)="onSubmit(myForm.value)" class="ui form">
+      <div class="field"[class.error]="!sku.valid && sku.touched">
+        <label for="skuInput" >SKU</label>
+        <input type="text" id="skuInput" placeholder="SKU"
+          [ngFormControl]="myForm.controls['sku']">
+          <div *ngIf="!sku.valid" class="ui error message">SKU is invalid</div>
+          <div *ngIf="sku.hasError('required')" class="ui error message">SKU is required</div>
+      </div>
+      <div class="field">
+        <label for="priceInput">Price</label>
+        <input type="text" id="priceInput" placeholder="Price"
+          [ngFormControl]="myForm.find('price')"  [(ngModel)]="price">
+      </div>
+      
+      <button type="submit" class="ui button">Submit</button>     
+    </form>
+    </div>
+  `
+  })
+  export class DemoFormSkuBuilder {
+    myForm: ControlGroup;
+    sku: AbstractControl;
+    
+    constructor(fb: FormBuilder) {
+      this.myForm = fb.group({
+        'sku': ['', Validators.required],
+        'price': ['']
+      });
+      this.sku = this.myForm.controls['sku'];
+      this.sku.valueChanges.subscribe((value: string) => {console.log(value)});
+      this.myForm.find('price').valueChanges.subscribe((value: string) => {console.log(value)});
 
+    }
+
+
+
+    onSubmit(value: string): void {
+      console.log('you submitted value: ', value);
+    }
+  }
  // ShopApp Decorator
  @Component({
    selector: `shop-app`,
-   directives: [ProductsList],
+   directives: [ProductsList,DemoFormSkuBuilder],
    template:
    `<div class="shop-app">
        <products-list
          [productList]="products"
          (onProductSelected)="productWasSelected($event)" >
        </products-list>
+       <demo-form-sku-builder></demo-form-sku-builder>
    </div>`
  })
  // ShopApp class
